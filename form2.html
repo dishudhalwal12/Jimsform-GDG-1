@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>JIMS Session Registration | ROVEXA PROTOCOL</title>
+    
+    <!-- FONTS -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;700&family=Roboto:wght@400;500&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <!-- TAILWIND CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'rovexa-bg': '#F4F5ED',      // Warm Off-White Paper
+                        'rovexa-charcoal': '#121212', // Deep Black
+                        'rovexa-matcha': '#B2F838',   // Electric Accent
+                        'legacy-purple': '#673AB7',   // Boring Form Purple
+                        'legacy-bg': '#F0EBF8',       // Boring Form Bg
+                        'ui-gray': '#E5E5E5',
+                        'error-red': '#FF453A',
+                    },
+                    fontFamily: {
+                        'sans': ['"Space Grotesk"', 'sans-serif'], // Headings
+                        'body': ['"Inter"', 'sans-serif'],         // Inputs/Labels
+                        'mono': ['"JetBrains Mono"', 'monospace'], // Accents
+                        'legacy': ['"Roboto"', 'sans-serif'],      // Decoy
+                    },
+                    boxShadow: {
+                        'beast': '8px 8px 0px 0px #121212',
+                        'beast-hover': '4px 4px 0px 0px #121212',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- LIBRARIES -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- Confetti Library for the "Party Paper" effect -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.7/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.7/firebase-firestore-compat.js"></script>
+
+    <script>
+      // Your web app's Firebase configuration
+      const firebaseConfig = {
+        apiKey: "AIzaSyDNH5oMSxF_M51qhbkXHHz19D8YOy1rqik",
+        authDomain: "rovexa-49aa5.firebaseapp.com",
+        projectId: "rovexa-49aa5",
+        storageBucket: "rovexa-49aa5.firebasestorage.app",
+        messagingSenderId: "1045479597194",
+        appId: "1:1045479597194:web:724876ef043e6c2072b973",
+        measurementId: "G-D907G5GW02"
+      };
+
+      // Initialize Firebase
+      firebase.initializeApp(firebaseConfig);
+      const db = firebase.firestore();
+    </script>
+
+    <style>
+        body {
+            margin: 0;
+            overflow-x: hidden;
+            background-color: #ffffff;
+            -webkit-tap-highlight-color: transparent; /* Removes blue tap box on Android */
+        }
+
+        /* --- GLITCH & DECOY STYLES --- */
+        .decoy-message {
+            position: absolute;
+            top: -50px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #1A1A1A;
+            color: #B2F838;
+            padding: 8px 16px;
+            font-family: '"JetBrains Mono"', monospace;
+            font-size: 12px;
+            border-radius: 4px;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        .glitch-text {
+            position: relative;
+            animation: glitch-skew 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) both infinite;
+            color: red;
+            font-weight: 900;
+        }
+        
+        .glitch-text::before, .glitch-text::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .glitch-text::before {
+            left: 2px;
+            text-shadow: -2px 0 #ff00c1;
+            clip: rect(44px, 450px, 56px, 0);
+            animation: glitch-anim 2s infinite linear alternate-reverse;
+        }
+
+        .glitch-text::after {
+            left: -2px;
+            text-shadow: -2px 0 #00fff9;
+            clip: rect(44px, 450px, 56px, 0);
+            animation: glitch-anim2 2s infinite linear alternate-reverse;
+        }
+
+        @keyframes glitch-anim {
+            0% { clip: rect(12px, 9999px, 86px, 0); }
+            20% { clip: rect(69px, 9999px, 16px, 0); }
+            40% { clip: rect(6px, 9999px, 86px, 0); }
+            60% { clip: rect(32px, 9999px, 20px, 0); }
+            80% { clip: rect(89px, 9999px, 5px, 0); }
+            100% { clip: rect(12px, 9999px, 66px, 0); }
+        }
+
+        @keyframes glitch-anim2 {
+            0% { clip: rect(82px, 9999px, 12px, 0); }
+            20% { clip: rect(10px, 9999px, 90px, 0); }
+            40% { clip: rect(50px, 9999px, 4px, 0); }
+            60% { clip: rect(12px, 9999px, 69px, 0); }
+            80% { clip: rect(4px, 9999px, 82px, 0); }
+            100% { clip: rect(70px, 9999px, 14px, 0); }
+        }
+
+        /* --- BEAST MODE STYLES --- */
+        .input-group {
+            position: relative;
+            margin-bottom: 2.5rem;
+        }
+        
+        .beast-input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            border-bottom: 3px solid #E5E5E5;
+            padding: 1rem 0;
+            font-family: 'Inter', sans-serif;
+            font-size: 1.25rem;
+            color: #121212;
+            transition: all 0.3s ease;
+            border-radius: 0;
+        }
+
+        .beast-input:focus {
+            outline: none;
+            border-bottom-color: #121212;
+        }
+
+        .beast-input:focus + label,
+        .beast-input:not(:placeholder-shown) + label {
+            transform: translateY(-1.5rem) scale(0.85);
+            color: #121212;
+            font-weight: 700;
+        }
+
+        .beast-label {
+            position: absolute;
+            left: 0;
+            top: 1rem;
+            font-family: 'Inter', sans-serif;
+            font-size: 1.2rem;
+            color: #888;
+            pointer-events: none;
+            transform-origin: left top;
+            transition: all 0.3s ease;
+        }
+
+        /* Radio Cards */
+        .radio-card input:checked + div {
+            background-color: #121212;
+            color: #B2F838;
+            border-color: #121212;
+            transform: translateY(-4px);
+            box-shadow: 4px 4px 0px 0px #B2F838;
+        }
+
+        /* Custom Checkbox */
+        .checkbox-wrapper input:checked + div {
+            background-color: #B2F838;
+            border-color: #121212;
+        }
+        .checkbox-wrapper input:checked + div::after {
+            content: '✓';
+            color: #121212;
+            font-size: 1.2rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+        }
+
+        /* Smooth scroll for keyboard fix */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+            opacity: 0; 
+        }
+
+        .loader-bar-fill { width: 0%; transition: width 0.1s linear; }
+
+        /* Validation Colors */
+        .valid-field {
+            border-bottom-color: #B2F838 !important; /* Matcha - Keeps underline green */
+        }
+        .invalid-field {
+            border-bottom-color: #FF453A !important; /* Red */
+        }
+        .text-valid {
+            color: #121212 !important; /* Changed to Charcoal for readability */
+            font-weight: 600; /* Added weight for better visibility */
+        }
+        .text-invalid {
+            color: #FF453A !important;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- THREE.JS BACKGROUND -->
+    <div id="canvas-container"></div>
+
+    <!-- PHASE 1: THE DECOY -->
+    <div id="decoy-layer" class="fixed inset-0 z-50 flex items-center justify-center bg-[#F0EBF8] p-4 transition-transform origin-center">
+        <div class="w-full max-w-md bg-white rounded-lg shadow-xl overflow-hidden border-t-8 border-legacy-purple relative">
+            <div id="fake-cursor" class="absolute z-50 w-6 h-6 bg-black rounded-full opacity-0 pointer-events-none transform translate-x-10 translate-y-10">
+                <div class="w-full h-full bg-white rounded-full opacity-50 scale-150 animate-ping"></div>
+            </div>
+            <div class="p-6">
+                <div class="decoy-message">Initializing secure protocol...</div>
+                <h1 class="font-legacy text-3xl text-black mb-2">JIMS Session Registration</h1>
+                <p class="font-legacy text-sm text-gray-600 mb-6">Please fill out this form to attend the session.</p>
+                <div class="space-y-4 opacity-50">
+                    <div>
+                        <label class="block font-legacy text-xs text-gray-500 mb-1">Name</label>
+                        <div class="h-10 bg-gray-100 rounded border border-gray-300"></div>
+                    </div>
+                </div>
+                <div class="mt-8 flex justify-end">
+                    <button class="font-legacy text-sm font-medium text-legacy-purple uppercase tracking-wide">Next</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PHASE 2: THE GLITCH -->
+    <div id="glitch-overlay" class="fixed inset-0 z-[60] flex items-center justify-center bg-black bg-opacity-90 hidden">
+        <h1 class="glitch-text text-4xl md:text-7xl font-mono text-rovexa-matcha text-center px-4 leading-tight" data-text="GOGGLE FORMS ARE DEAD">
+            GOOGLE FORMS<br>ARE DEAD
+        </h1>
+    </div>
+
+    <!-- PHASE 4: STRATEGIC ROVEXA FORM -->
+    <div id="rovexa-layer" class="relative z-10 min-h-screen hidden opacity-0 flex flex-col items-center justify-start py-12 px-6 md:px-0">
+        
+        <div class="w-full max-w-2xl bg-white/50 backdrop-blur-sm md:bg-transparent border-2 border-rovexa-charcoal md:border-0 p-6 md:p-0 shadow-beast md:shadow-none rovexa-anim">
+            
+            <!-- Branding Header -->
+            <header class="mb-12 flex items-center justify-between border-b-4 border-rovexa-charcoal pb-4">
+                <h1 class="font-sans text-5xl font-bold text-rovexa-charcoal tracking-tighter">
+                    ROVEXA<span class="text-rovexa-matcha">.</span>
+                </h1>
+                <div class="hidden md:block font-mono text-xs text-right opacity-60">
+                    INTELLIGENCE GATHERING<br>PROTOCOL v2.0
+                </div>
+            </header>
+
+            <!-- Beast Form -->
+            <form id="rovexa-form" class="space-y-2">
+                
+                <!-- 1. FULL NAME -->
+                <!-- UX Update: autocomplete added -->
+                <div class="input-group rovexa-anim">
+                    <input type="text" name="name" id="name" class="beast-input" placeholder=" " required autocomplete="name" minlength="4">
+                    <label for="name" class="beast-label">Full Name</label>
+                    <p id="name-msg" class="text-xs font-mono text-gray-400 mt-1 transition-colors duration-300">// As it appears on your Certificate</p>
+                </div>
+
+                <!-- 2. WHATSAPP NUMBER -->
+                <!-- UX Update: type='tel' and inputmode='numeric' triggers number pad on mobile -->
+                <div class="input-group rovexa-anim" style="transition-delay: 0.05s;">
+                    <input type="tel" inputmode="numeric" name="whatsapp" id="whatsapp" class="beast-input" placeholder=" " required autocomplete="tel" pattern="[0-9]{10}" title="Please enter a 10-digit mobile number." maxlength="10">
+                    <label for="whatsapp" class="beast-label">WhatsApp Number</label>
+                    <p id="whatsapp-msg" class="text-xs font-mono text-gray-400 mt-1 transition-colors duration-300">// +91 xxxxxxxxxx (Critical for updates)</p>
+                </div>
+
+                <!-- 3. CONTEXT (Course) -->
+                <div class="mb-10 rovexa-anim" style="transition-delay: 0.1s;">
+                    <label class="block font-sans text-lg font-bold text-rovexa-charcoal mb-4">Course Context</label>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+                        <label class="cursor-pointer radio-card">
+                            <input type="radio" name="course" value="BCA" class="sr-only" required>
+                            <div class="h-14 flex items-center justify-center border-2 border-ui-gray hover:border-rovexa-charcoal transition-all font-body font-bold text-lg text-gray-400">
+                                BCA
+                            </div>
+                        </label>
+                        <label class="cursor-pointer radio-card">
+                            <input type="radio" name="course" value="MCA" class="sr-only">
+                            <div class="h-14 flex items-center justify-center border-2 border-ui-gray hover:border-rovexa-charcoal transition-all font-body font-bold text-lg text-gray-400">
+                                MCA
+                            </div>
+                        </label>
+                        <label class="cursor-pointer radio-card">
+                            <input type="radio" name="course" value="BBA" class="sr-only">
+                            <div class="h-14 flex items-center justify-center border-2 border-ui-gray hover:border-rovexa-charcoal transition-all font-body font-bold text-lg text-gray-400">
+                                BBA
+                            </div>
+                        </label>
+                        <label class="cursor-pointer radio-card">
+                            <input type="radio" name="course" value="Other" class="sr-only">
+                            <div class="h-14 flex items-center justify-center border-2 border-ui-gray hover:border-rovexa-charcoal transition-all font-body font-bold text-lg text-gray-400">
+                                OTHER
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- 5. TECH (Stack) - Email -->
+                <!-- UX Update: type='email' triggers email keyboard (@ symbol visible) -->
+                <div class="input-group rovexa-anim" style="transition-delay: 0.2s;">
+                    <input type="email" inputmode="email" name="email" id="email" class="beast-input" placeholder=" " required autocomplete="email" pattern="[a-zA-Z0-9._%+-]+@gmail\.com$" title="Please enter a valid Gmail address.">
+                    <label for="email" class="beast-label">Email</label>
+                    <p id="email-msg" class="text-xs font-mono text-gray-400 mt-1 transition-colors duration-300">// Must be a @gmail.com address</p>
+                </div>
+
+                <!-- 6. IDEA (Ambition) -->
+                <div class="input-group rovexa-anim" style="transition-delay: 0.25s;">
+                    <input type="text" name="idea" id="idea" class="beast-input" placeholder=" " required autocomplete="off">
+                    <label for="idea" class="beast-label">What do you want to build?</label>
+                    <p class="text-xs font-mono text-gray-400 mt-1">// A startup, An agency, or "Just passing exams"</p>
+                </div>
+
+                <!-- 7. VERIFY (Philosophy) -->
+                <div class="pt-6 pb-2 rovexa-anim" style="transition-delay: 0.3s;">
+                    <label class="flex items-center space-x-4 cursor-pointer group checkbox-wrapper relative">
+                        <input type="checkbox" name="verify" required class="sr-only" id="verify-checkbox">
+                        <div class="w-8 h-8 flex-shrink-0 border-2 border-rovexa-charcoal transition-all duration-200"></div>
+                        <span id="verify-text" class="font-sans font-bold text-rovexa-charcoal text-lg group-hover:text-black transition-all">
+                            I agree to stop acting like a robot.
+                        </span>
+                    </label>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" id="submit-btn" class="w-full bg-rovexa-charcoal text-white hover:text-rovexa-matcha font-sans font-bold text-xl py-6 mt-8 rovexa-anim shadow-beast hover:shadow-beast-hover transform hover:translate-x-1 hover:translate-y-1 transition-all duration-200" style="transition-delay: 0.35s;">
+                    INITIATE PROTOCOL
+                </button>
+                
+            </form>
+        </div>
+
+        <footer class="mt-12 text-center font-mono text-[10px] text-gray-400 rovexa-anim opacity-0">
+            POWERED BY ROVEXA SYSTEM ARCHITECTURE v1.0
+        </footer>
+    </div>
+
+    <!-- Progress Overlay -->
+    <div id="upload-overlay" class="fixed inset-0 bg-rovexa-bg z-20 hidden flex-col justify-center items-center">
+        <div class="w-full max-w-md px-6">
+            <div class="flex justify-between font-mono text-xs mb-2 text-rovexa-charcoal">
+                <span>// ENCRYPTING DATA</span>
+                <span id="progress-text">0%</span>
+            </div>
+            <div class="w-full h-4 border-2 border-rovexa-charcoal p-1">
+                <div id="progress-bar" class="h-full bg-rovexa-matcha loader-bar-fill"></div>
+            </div>
+            <div class="mt-4 font-mono text-xs text-gray-500 text-center animate-pulse">
+                ESTABLISHING HANDSHAKE...
+            </div>
+        </div>
+    </div>
+
+    <!-- Success State -->
+    <div id="success-state" class="fixed inset-0 bg-rovexa-charcoal z-30 hidden flex-col justify-center items-center text-center p-6 text-rovexa-bg">
+        <div class="text-rovexa-matcha text-6xl mb-6 scale-150">✓</div>
+        <h2 class="font-sans text-4xl md:text-6xl font-bold mb-4 tracking-tight">YOU ARE IN.</h2>
+        <p class="font-body text-lg text-gray-400 max-w-md">
+            Your profile has been analyzed.<br>
+            Prepare for the session on 7th December, 2025.<br>
+        </p>
+        <div class="mt-12 py-3 px-6 border border-gray-700 font-mono text-xs text-rovexa-matcha rounded-full">
+            <!-- UPDATED: ID will be injected here via JS -->
+            ID: <span id="user-id-placeholder">GENERATING...</span>
+        </div>
+    </div>
+
+    <script>
+        // --- UX HELPER: HAPTICS ---
+        const triggerHapticFeedback = (type) => {
+            if (navigator.vibrate) {
+                // 'heavy' for errors/big actions, 'soft' for ticks, 'success' for completion
+                if (type === 'soft') navigator.vibrate(10); 
+                else if (type === 'medium') navigator.vibrate(40);
+                else if (type === 'heavy') navigator.vibrate(100);
+                else if (type === 'success') navigator.vibrate([50, 50, 50]); // Double tap
+            }
+        };
+
+        // --- UX HELPER: KEYBOARD FOCUS SCROLL ---
+        // Ensures input is centered when keyboard pops up
+        const setupMobileFocus = () => {
+            const inputs = document.querySelectorAll('input');
+            inputs.forEach(input => {
+                input.addEventListener('focus', () => {
+                    // Small delay to allow keyboard to open
+                    setTimeout(() => {
+                        input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }, 300);
+                });
+            });
+        };
+
+        // --- UX HELPER: REAL-TIME VALIDATION ---
+        const setupValidation = () => {
+            // 1. NAME VALIDATION
+            const nameInput = document.getElementById('name');
+            const nameMsg = document.getElementById('name-msg');
+            
+            nameInput.addEventListener('input', (e) => {
+                const val = e.target.value;
+                if(val.length > 3) {
+                    nameInput.classList.add('valid-field');
+                    nameInput.classList.remove('invalid-field');
+                    nameMsg.classList.add('text-valid');
+                    nameMsg.classList.remove('text-invalid');
+                    nameMsg.innerText = "✓ IDENTITY CONFIRMED";
+                } else {
+                    nameInput.classList.remove('valid-field');
+                    nameMsg.classList.remove('text-valid');
+                    nameMsg.innerText = "// As it appears on your Certificate";
+                }
+            });
+
+            // 2. WHATSAPP VALIDATION (STRICT)
+            const waInput = document.getElementById('whatsapp');
+            const waMsg = document.getElementById('whatsapp-msg');
+
+            waInput.addEventListener('input', (e) => {
+                // Remove non-digits immediately
+                let val = e.target.value.replace(/\D/g, '');
+                // Limit to 10 digits
+                if(val.length > 10) val = val.slice(0, 10);
+                e.target.value = val;
+
+                if(val.length === 10) {
+                    waInput.classList.add('valid-field');
+                    waInput.classList.remove('invalid-field');
+                    waMsg.classList.add('text-valid');
+                    waMsg.classList.remove('text-invalid');
+                    waMsg.innerText = "✓ SECURE LINK READY";
+                } else {
+                    waInput.classList.remove('valid-field');
+                    waMsg.classList.remove('text-valid');
+                    // Helper text updates dynamically based on length
+                    if(val.length > 0) {
+                        waMsg.innerText = `// DIGITS: ${val.length}/10 (NEED 10)`;
+                    } else {
+                        waMsg.innerText = "// +91 xxxxxxxxxx (Critical for updates)";
+                    }
+                }
+            });
+            
+            waInput.addEventListener('blur', (e) => {
+                if(e.target.value.length > 0 && e.target.value.length < 10) {
+                    waInput.classList.add('invalid-field');
+                    waMsg.classList.add('text-invalid');
+                    waMsg.innerText = "// ERROR: NUMBER INCOMPLETE (NEED 10)";
+                    triggerHapticFeedback('medium');
+                }
+            });
+
+            // 3. EMAIL VALIDATION (@GMAIL.COM)
+            const emailInput = document.getElementById('email');
+            const emailMsg = document.getElementById('email-msg');
+
+            emailInput.addEventListener('input', (e) => {
+                const val = e.target.value.toLowerCase();
+                
+                if(val.endsWith('@gmail.com')) {
+                    emailInput.classList.add('valid-field');
+                    emailInput.classList.remove('invalid-field');
+                    emailMsg.classList.add('text-valid');
+                    emailMsg.classList.remove('text-invalid');
+                    emailMsg.innerText = "✓ GMAIL PROTOCOL VERIFIED";
+                } else {
+                    emailInput.classList.remove('valid-field');
+                    emailMsg.classList.remove('text-valid');
+                    if(val.includes('@')) {
+                        emailMsg.innerText = "// ... WAITING FOR 'GMAIL.COM'";
+                    } else {
+                        emailMsg.innerText = "// Must be a @gmail.com address";
+                    }
+                }
+            });
+
+            emailInput.addEventListener('blur', (e) => {
+                const val = e.target.value.toLowerCase();
+                if(val.length > 0 && !val.endsWith('@gmail.com')) {
+                    emailInput.classList.add('invalid-field');
+                    emailMsg.classList.add('text-invalid');
+                    emailMsg.innerText = "// ERROR: ONLY GMAIL ACCEPTED";
+                    triggerHapticFeedback('medium');
+                }
+            });
+        };
+
+        // --- 1. THREE.JS PARTICLE SYSTEM ---
+        const initThree = () => {
+            const container = document.getElementById('canvas-container');
+            const scene = new THREE.Scene();
+            scene.background = new THREE.Color(0xF4F5ED); 
+
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+            
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            container.appendChild(renderer.domElement);
+
+            const particlesGeometry = new THREE.BufferGeometry();
+            const count = window.innerWidth < 768 ? 100 : 350; 
+            
+            const posArray = new Float32Array(count * 3);
+            for(let i = 0; i < count * 3; i++) {
+                posArray[i] = (Math.random() - 0.5) * 18; 
+                posArray[i+1] = (Math.random() - 0.5) * 18;
+                posArray[i+2] = (Math.random() - 0.5) * 18;
+            }
+            
+            particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+            
+            const material = new THREE.PointsMaterial({
+                size: 0.04,
+                color: 0x121212, 
+                transparent: true,
+                opacity: 0.6
+            });
+            
+            const particlesMesh = new THREE.Points(particlesGeometry, material);
+            scene.add(particlesMesh);
+            
+            camera.position.z = 5;
+
+            const animate = () => {
+                requestAnimationFrame(animate);
+                particlesMesh.rotation.y += 0.0008;
+                particlesMesh.rotation.x += 0.0004;
+                renderer.render(scene, camera);
+            };
+            
+            animate();
+
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+        };
+
+        // --- 2. GSAP TRANSFORMATION SEQUENCE ---
+        const runTransformation = () => {
+            const tl = gsap.timeline();
+
+            const decoy = document.getElementById('decoy-layer');
+            const decoyMessage = document.querySelector('.decoy-message');
+            const glitchOverlay = document.getElementById('glitch-overlay');
+            const rovexaLayer = document.getElementById('rovexa-layer');
+            const canvasContainer = document.getElementById('canvas-container');
+            const cursor = document.getElementById('fake-cursor');
+
+            // Legacy Intro
+            tl.to(decoyMessage, { opacity: 1, duration: 0.3, delay: 0.5 })
+            .to(cursor, { opacity: 1, duration: 0.2 })
+            .to(cursor, { x: -50, y: -50, duration: 1, ease: "power2.inOut" })
+            .to(cursor, { scale: 0.8, duration: 0.1 });
+
+            // Glitch Trigger
+            tl.add(() => {
+                decoy.classList.add('animate-pulse');
+                gsap.to(decoy, { x: 5, y: -5, duration: 0.1, repeat: 10, yoyo: true });
+            })
+            .to(decoy, { filter: "invert(1) hue-rotate(90deg)", duration: 0.2 })
+            .set(glitchOverlay, { display: "flex" })
+            .to(glitchOverlay, { opacity: 1, duration: 0.1 })
+            .to(decoy, { 
+                opacity: 0, 
+                duration: 0.1,
+                onComplete: () => { decoy.style.display = 'none'; } 
+            }); 
+
+            tl.to({}, { duration: 1.5 }); // Wait
+
+            // Reveal Rovexa
+            tl.to(glitchOverlay, { 
+                opacity: 0, 
+                scale: 1.5, 
+                duration: 0.4, 
+                ease: "power4.in",
+                onComplete: () => { glitchOverlay.style.display = 'none'; }
+            })
+            .add(() => {
+                document.body.style.backgroundColor = "#F4F5ED"; 
+                rovexaLayer.classList.remove('hidden');
+                canvasContainer.style.opacity = 1; 
+            })
+            .to(rovexaLayer, { opacity: 1, duration: 0.5 })
+            .fromTo(".rovexa-anim", 
+                { y: 30, opacity: 0 },
+                { y: 0, opacity: 1, duration: 0.6, stagger: 0.1, ease: "power2.out" }
+            );
+        };
+
+        // --- 3. FORM LOGIC ---
+        const handleForm = () => {
+            const form = document.getElementById('rovexa-form');
+            const overlay = document.getElementById('upload-overlay');
+            const bar = document.getElementById('progress-bar');
+            const text = document.getElementById('progress-text');
+            const success = document.getElementById('success-state');
+            const verifyCheckbox = document.getElementById('verify-checkbox');
+            const verifyText = document.getElementById('verify-text');
+            const submitBtn = document.getElementById('submit-btn');
+            const radioCards = document.querySelectorAll('.radio-card input[type="radio"]');
+
+            // Haptic feedback for radio buttons
+            radioCards.forEach(radio => {
+                radio.addEventListener('change', () => {
+                    triggerHapticFeedback('soft');
+                });
+            });
+
+            // --- CHECKBOX ANIMATION & PARTY POPPER ---
+            verifyCheckbox.addEventListener('change', function(e) {
+                const checkboxDiv = this.nextElementSibling;
+                
+                if (this.checked) {
+                    triggerHapticFeedback('success'); // Double pulse
+                    
+                    // 1. Checkbox Animation
+                    gsap.fromTo(checkboxDiv,
+                        { scale: 0.5, rotate: -45, opacity: 0 },
+                        {
+                            scale: 1,
+                            rotate: 0,
+                            opacity: 1,
+                            duration: 0.6,
+                            ease: "elastic.out(1, 0.3)"
+                        }
+                    );
+
+                    // 2. Text Transformation
+                    verifyText.innerText = "PROTOCOL ACCEPTED.";
+                    verifyText.classList.add('text-rovexa-matcha');
+                    
+                    // 3. THE CONFETTI EXPLOSION
+                    // We get the position of the checkbox to fire confetti from there
+                    const rect = checkboxDiv.getBoundingClientRect();
+                    const x = (rect.left + rect.width / 2) / window.innerWidth;
+                    const y = (rect.top + rect.height / 2) / window.innerHeight;
+
+                    confetti({
+                        particleCount: 100,
+                        spread: 70,
+                        origin: { x: x, y: y },
+                        colors: ['#B2F838', '#121212', '#FFFFFF'], // Brand colors: Matcha, Black, White
+                        disableForReducedMotion: true,
+                        zIndex: 9999
+                    });
+
+                } else {
+                    triggerHapticFeedback('soft');
+                    verifyText.innerText = "I agree to stop acting like a robot.";
+                    verifyText.classList.remove('text-rovexa-matcha');
+                    
+                    gsap.to(checkboxDiv, {
+                        scale: 0.9,
+                        rotate: 0,
+                        duration: 0.2,
+                        ease: "power2.out"
+                    });
+                }
+            });
+
+            // Haptic feedback for submit button
+            submitBtn.addEventListener('click', () => {
+                triggerHapticFeedback('heavy');
+            });
+
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const formData = new FormData(form);
+                const data = {
+                    full_name: formData.get('name'),
+                    whatsapp: formData.get('whatsapp'),
+                    course_context: formData.get('course'),
+                    tech_stack: formData.get('email'),
+                    ambition: formData.get('idea'),
+                    philosophy_agreement: formData.get('verify') === 'on',
+                    timestamp: new Date()
+                };
+
+                overlay.style.display = 'flex';
+                
+                db.collection("jims-session-registrations").add(data)
+                    .then((docRef) => {
+                        let width = 0;
+                        const interval = setInterval(() => {
+                            if(width >= 100) {
+                                clearInterval(interval);
+                                gsap.to(overlay, { opacity: 0, duration: 0.5, onComplete: () => {
+                                    overlay.style.display = 'none';
+                                    success.style.display = 'flex';
+                                    
+                                    // --- DYNAMIC ID GENERATION ---
+                                    // Extract first name, lowercase it, and generate ID
+                                    const firstName = data.full_name.trim().split(' ')[0].toLowerCase();
+                                    document.getElementById('user-id-placeholder').innerText = `2025.${firstName}-Rovexa`;
+
+                                    // Trigger confetti again on success for grand finale
+                                    confetti({
+                                        particleCount: 150,
+                                        spread: 100,
+                                        origin: { y: 0.6 },
+                                        colors: ['#B2F838', '#FFFFFF']
+                                    });
+                                    triggerHapticFeedback('success');
+                                    gsap.from(success, { opacity: 0, scale: 0.9, duration: 0.5 });
+                                }});
+                            } else {
+                                width += Math.random() * 15;
+                                if(width > 100) width = 100;
+                                bar.style.width = width + '%';
+                                text.innerText = Math.floor(width) + '%';
+                            }
+                        }, 50);
+                    })
+                    .catch((error) => {
+                        console.error("Error", error);
+                        alert("Submission failed. Please try again.");
+                        overlay.style.display = 'none';
+                    });
+            });
+        };
+
+        window.addEventListener('load', () => {
+            initThree();
+            runTransformation();
+            handleForm();
+            setupMobileFocus(); // Run the mobile UX fix
+            setupValidation();  // Start the life-like validation
+        });
+    </script>
+</body>
+</html>
